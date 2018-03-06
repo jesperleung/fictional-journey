@@ -12,23 +12,22 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -86,6 +85,12 @@ public class MapsActivity extends FragmentActivity
                     marker.remove();
                 }
                 marker = mMap.addMarker(new MarkerOptions().position(latLngLoc).title(place.getName().toString()));
+                Circle circle = mMap.addCircle(new CircleOptions()
+                        .center(latLngLoc)
+                        .radius(150)
+                        .strokeColor(0x220000FF)
+                        .fillColor(0x220000FF)
+                        .strokeWidth(2));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLngLoc, 12), 2000, null);
 
             }
