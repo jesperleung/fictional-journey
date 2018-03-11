@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
@@ -46,6 +47,23 @@ public class MapsActivity extends FragmentActivity
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     /**
+     * The desired interval for location updates.
+     */
+    private static final long UPDATE_INTERVAL = 5 * 1000;
+
+    /**
+     * The fastest rate for active location updates. Updates will never be more frequent
+     * than this value, but they may be less frequent.
+     */
+    private static final long FASTEST_UPDATE_INTERVAL = UPDATE_INTERVAL / 2;
+
+    /**
+     * The max time before batched results are delivered by location services. Results may be
+     * delivered sooner than this interval.
+     */
+    private static final long MAX_WAIT_TIME = UPDATE_INTERVAL * 3;
+
+    /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
      */
@@ -70,7 +88,10 @@ public class MapsActivity extends FragmentActivity
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
-
+    /**
+     * Stores parameters for requests to the FusedLocationProviderApi.
+     */
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +206,21 @@ public class MapsActivity extends FragmentActivity
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Sets the maximum time when batched location updates are delivered. Updates may be
+        // delivered sooner than this interval.
+        mLocationRequest.setMaxWaitTime(MAX_WAIT_TIME);
     }
 
     @Override
