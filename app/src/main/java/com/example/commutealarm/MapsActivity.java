@@ -34,7 +34,8 @@ import com.google.android.gms.tasks.Task;
 
 public class MapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        GoogleMap.OnMyLocationClickListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     /**
@@ -128,11 +129,16 @@ public class MapsActivity extends FragmentActivity
         mMap = googleMap;
         mUiSettings = mMap.getUiSettings();
 
-
+        mMap.setOnMyLocationClickListener(this);
 
         enableMyLocation();
         getDeviceLocation();
 
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
     /**
      * Enables the My Location layer if the fine location permission has been granted.
