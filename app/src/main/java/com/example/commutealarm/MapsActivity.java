@@ -36,6 +36,7 @@ public class MapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
+    private static final String TAG = MapsActivity.class.getSimpleName();
     /**
      * Request code for location permission request.
      *
@@ -61,6 +62,7 @@ public class MapsActivity extends FragmentActivity
 
     private boolean mLocationPermissionGranted;
 
+    private final LatLng mDefaultLocation = new LatLng(43.6532, 79.3832);
     private Location mLastKnownLocation;
     private static final int DEFAULT_ZOOM = 15;
 
@@ -144,6 +146,7 @@ public class MapsActivity extends FragmentActivity
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
+            mLocationPermissionGranted = true;
         }
     }
 
@@ -154,8 +157,9 @@ public class MapsActivity extends FragmentActivity
      */
         try {
             if (mLocationPermissionGranted) {
-                Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+                Task locationResult = mFusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
@@ -163,6 +167,11 @@ public class MapsActivity extends FragmentActivity
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                        } else {
+                            Log.d(TAG, "Current location is null. Using defaults.");
+                            Log.e(TAG, "Exception: %s", task.getException());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         }
                     }
                 });
