@@ -1,9 +1,11 @@
 package com.example.commutealarm;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -62,7 +64,7 @@ public class MapsActivity extends FragmentActivity
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     private boolean mLocationPermissionGranted;
-
+    public Vibrator v;
     private final LatLng mDefaultLocation = new LatLng(43.6532, 79.3832);
     private Location mLastKnownLocation;
     private static final int DEFAULT_ZOOM = 15;
@@ -77,6 +79,7 @@ public class MapsActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         placeAutocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
@@ -138,6 +141,7 @@ public class MapsActivity extends FragmentActivity
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
+        v.vibrate(50000000);
         Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
     /**
