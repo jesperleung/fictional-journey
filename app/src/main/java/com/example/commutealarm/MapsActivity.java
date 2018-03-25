@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -82,7 +83,8 @@ public class MapsActivity extends FragmentActivity
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     private boolean mLocationPermissionGranted;
-    public Vibrator v;
+    public Vibrator alertVibrate;
+    public MediaPlayer alertSound;
     private final LatLng mDefaultLocation = new LatLng(43.6532, 79.3832);
     private Location mLastKnownLocation;
     private static final int DEFAULT_ZOOM = 15;
@@ -100,7 +102,9 @@ public class MapsActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        alertVibrate = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        alertSound = MediaPlayer.create(this, R.raw.harp_audio);
+
         placeAutocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
@@ -162,7 +166,8 @@ public class MapsActivity extends FragmentActivity
 
     @Override
     public void onMyLocationClick(@NonNull Location location) {
-        v.vibrate(50000000);
+        alertVibrate.vibrate(2000);
+        alertSound.start();
         Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
     /**
