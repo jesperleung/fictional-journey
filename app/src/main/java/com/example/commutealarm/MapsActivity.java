@@ -16,7 +16,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
@@ -83,6 +85,12 @@ public class MapsActivity extends FragmentActivity
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     private boolean mLocationPermissionGranted;
+    private boolean mRequestingLocationUpdates = true;
+
+    private LocationRequest mLocationRequest;
+
+    private LocationCallback mLocationCallback;
+
     public Vibrator alertVibrate;
     public MediaPlayer alertSound;
     private final LatLng mDefaultLocation = new LatLng(43.6532, 79.3832);
@@ -91,11 +99,6 @@ public class MapsActivity extends FragmentActivity
 
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
-
-    /**
-     * Stores parameters for requests to the FusedLocationProviderApi.
-     */
-    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,8 +143,18 @@ public class MapsActivity extends FragmentActivity
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // location.distanceTo();
+                }
+            };
+        };
     }
-
 
     /**
      * Manipulates the map once available.
@@ -170,6 +183,14 @@ public class MapsActivity extends FragmentActivity
         alertSound.start();
         Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
     }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
     /**
      * Enables the My Location layer if the fine location permission has been granted.
      */
@@ -183,6 +204,8 @@ public class MapsActivity extends FragmentActivity
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
             mLocationPermissionGranted = true;
+            createLocationRequest();
+            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         }
     }
 
@@ -215,21 +238,6 @@ public class MapsActivity extends FragmentActivity
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
-    }
-
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-
-        // Sets the fastest rate for active location updates. This interval is exact, and your
-        // application will never receive updates faster than this value.
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        // Sets the maximum time when batched location updates are delivered. Updates may be
-        // delivered sooner than this interval.
-        mLocationRequest.setMaxWaitTime(MAX_WAIT_TIME);
     }
 
     @Override
