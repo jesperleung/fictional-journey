@@ -44,7 +44,7 @@ import com.google.android.gms.tasks.Task;
 public class MapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        GoogleMap.OnMyLocationClickListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     /**
@@ -89,6 +89,8 @@ public class MapsActivity extends FragmentActivity
 
     private boolean mLocationPermissionGranted;
     private boolean mRequestingLocationUpdates = true;
+
+    private boolean lockedCamera = false;
 
     private LocationRequest mLocationRequest;
 
@@ -161,7 +163,11 @@ public class MapsActivity extends FragmentActivity
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    // location.distanceTo();
+                    Toast.makeText(getApplicationContext(), ""+location.getLatitude()+", "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+                    if (lockedCamera){
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+                    }
                 }
             };
         };
@@ -182,6 +188,7 @@ public class MapsActivity extends FragmentActivity
         mUiSettings = mMap.getUiSettings();
 
         mMap.setOnMyLocationClickListener(this);
+        mMap.setOnMyLocationButtonClickListener(this);
 
         enableMyLocation();
         getDeviceLocation();
@@ -192,7 +199,17 @@ public class MapsActivity extends FragmentActivity
     public void onMyLocationClick(@NonNull Location location) {
         alertVibrate.vibrate(2000);
         alertSound.start();
-        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        if (lockedCamera){
+            lockedCamera = false;
+        }else {
+            lockedCamera = true;
+        }
+        Toast.makeText(getApplicationContext(), ""+lockedCamera, Toast.LENGTH_SHORT).show();
+        return true;
     }
 
     protected void createLocationRequest() {
